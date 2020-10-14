@@ -3,13 +3,12 @@
   bottom: 0;
   right: 0;
   width: 30%;
-  height: 50%;
 }
 
 .main {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 450px !important;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -29,7 +28,7 @@
   flex-direction: row;
   height: 10%;
   width: 100%;
-  background-color: transparent;
+  background-color: white;
 }
 
 .user-msg {
@@ -83,4 +82,18 @@
 
 .material-icons {
   color: white;
+}
+
+.msg-title {
+  color: white;
+  font-size: 1.5em;
+  margin: 10px 0;
+}
+
+.txt-msg {
+  width: 97%;
+} 
+
+.MuiFormControl-root {
+  padding: 10px !important;
 }

@@ -1,162 +1,116 @@
-import React, {Component, useState, useEffect} from 'react';
-import parse from 'html-react-parser';
-import './App.css';
-const axios = require('axios');
+import React, {Component} from 'react';
+import {useAuth0} from '@auth0/auth0-react';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import Chatbox from './chatbox';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useHistory
+} from "react-router-dom";
+import './main.css';
 
-// function Chat() {
-//   const [message, setMessage] = useState('');
-//   const [messages, addMessage] = useState([]); 
+function LoginButton () {
+  const {loginWithRedirect} = useAuth0();
+  return <Button variant="outlined" color="primary" onClick={() => loginWithRedirect()}>Login</Button>;
+}
 
-//   useEffect(() => {
-//     axios.post('http://127.0.0.1:5002/getMessage', {
-//       message: "hi"
-//     })
-//     .then (res => {
-//       console.log(res.data.text);
-//       messages.push({
-//         message: res.data.text,
-//         from: 'chatbot'
-//       })
-//     })
-//     .catch(err => {
-//       console.log(err);
-//     });
-//   }, []);
+function LogoutButton() {
+  const {logout} = useAuth0();
+  return <Button variant="outlined" color="secondary" onClick={() => logout({returnTo: window.location.origin})}>Logout</Button>
+}
 
-//   function postMessage() {
-//     if(message === '') {
-//       alert('Message should not be empty');
-//     } else {
-//       messages.push(
-//         {
-//           message: message,
-//           from: 'user'
-//         }
-//       );
-//       setMessage('');
-//       console.log('fetching...');
-//       axios.post('http://127.0.0.1:5002/getMessage', {
-//       message: message
-//       })
-//       .then (res => {
-//         console.log(res.data.text);
-//         messages.push({
-//           message: res.data.text,
-//           from: 'chatbot'
-//         });
-//       })
-//       .catch(err => {
-//         console.log(err);
-//       });
-//     }
-//   }
+function Login() {
 
-//   function showData() {
-//     console.log(messages);
-//   }
+  function Profile() {
+    const {user, isAuthenticated, isLoading} = useAuth0();
 
-//   return (
-//     <div className="chat">
-//       <div className="main">
-//         <div className="messages">
-//           {messages.map((message, index) => {
-//             return (
-              // <div key={index} className={message.from === 'user' ? 'from-user': 'from-chatbox'}>
-              //   {message.from === 'user' ? 
-              //     <p className={message.from === 'user' ? 'user-msg': 'chatbot-msg'}>{message.message}</p> :
-              //     parse(message.message)
-              //   }
-//               </div>
-//             );
-//           })}
-//         </div>
-//         <div className="send">
-//           <input type="text" value={message} placeholder="Type your message here" onChange={(e) => setMessage(e.target.value)} />
-//           <button onClick={postMessage}><i className="material-icons">send</i></button>
-//         </div>
-//       </div>
-//       <button style={{position: "fixed", top: "0", left: "0"}} onClick={showData}>Get Data</button>
-//     </div>
-//   );
-// }
+    console.log(user);
+    console.log(isAuthenticated);
 
-class Chatbox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      messages: [],
-      message: ''
+    if(isAuthenticated) {
+      console.log(user);
     }
-    this.addMessage = this.addMessage.bind(this);
-    this.postMessage = this.postMessage.bind(this);
+
+    return isAuthenticated ? (<ToLogout />): (<ToLogin />);
   }
 
-  addMessage(event) {
-    this.setState({
-      message: event.target.value
-    });
-  }
-
-  postMessage() {
-    if(this.state.message === '') {
-      alert('Message should not be empty');
-    } else {
-      this.setState({
-        messages: [
-          ...this.state.messages,
-          {
-            message: this.state.message,
-            from: 'user'
-          }
-        ],
-        message: ''
-      });
-      console.log('fetching...');
-      axios.post('http://127.0.0.1:5002/getMessage', {
-      message: this.state.message
-      })
-      .then (res => {
-        console.log(res.data.text);
-        this.setState({
-          messages: [
-            ...this.state.messages, 
-            {
-              message: res.data.text,
-              from: 'chatbox'
-            }
-          ]
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-    }
-  }
-
-  render() {
-    return (
-      <div className="chat">
-        <div className="main">
-          <div className="messages">
-            {this.state.messages.map((message, index) => {
-              return (
-                message.from === 'user' ? 
-                <div key={index} className="from-user">
-                    <p className={message.from === 'user' ? 'user-msg': 'chatbot-msg'}>{message.message}</p> 
-                </div>:
-                <div key={index} className="from-chatbox" dangerouslySetInnerHTML={{ __html: message.message }}></div>
-              );
-            })}
-          </div>
-          <div className="send">
-            <input type="text" value={this.state.value} placeholder="Type your message here" onChange={this.addMessage} />
-            <button onClick={this.postMessage}><i className="material-icons">send</i></button>
-          </div>
-        </div>
+  function ToLogin() {
+    return(
+      <div className="centering">
+        <h3>Please Login</h3>
+        <LoginButton />
       </div>
     );
   }
 
+  function ToLogout() {
+    const {user} = useAuth0();
+    return(
+      <div className="centering">
+        <Avatar className="large-avatar" alt={user.name} src={user.picture} />
+        <h4>Welcome {user.name}</h4>
+        <Link to="/main">
+          <Button variant="contained">Go to Main</Button>
+        </Link>
+        <LogoutButton />
+      </div>
+    );
+  }
+
+  return(
+    <div className="main">
+      <Grid container direction="row" justify="center" alignItems="center">
+        <Grid item xs={12} lg={6}>
+          <Paper className="paper-main">
+            <Grid container direction="column" justify="center" alignItems="center">
+              <Grid item xs={12}>
+                <h3>Welcome to robertoyoc.com</h3>
+                <Profile />
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      </Grid>
+    </div>
+  );
 }
 
-export default Chatbox;
+function Main() {
+  const {user, isAuthenticated, isLoading} = useAuth0();
+  let history = useHistory();
+  if(!isAuthenticated){
+    history.push("/");
+  } else {
+    return(
+      <div>
+        <Grid container direction="row" justify="center" alignItems="center">
+          <Grid item xs={12} lg={6}>
+            <Paper className="paper-main">
+              <Grid container direction="column" justify="center" alignItems="center">
+                <h3>Welcome {user.name}</h3>
+                <LogoutButton />
+              </Grid>
+            </Paper>
+          </Grid>
+        </Grid>
+        <Chatbox />
+      </div>
+    );
+  }
+
+
+}
+
+export default function App() {
+  return(
+    <Router>
+      <Route path="/" exact={true} component={Login} />
+      <Route path="/main" component={Main} />
+    </Router>
+  );
+}
