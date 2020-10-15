@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 //const data = require('./.env');
 const dotenv = require('dotenv').config();
-const uri = `mongodb+srv://roberto:grek!kelk3KET-chif@cluster0.bgu8x.mongodb.net/robertoyoc?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://roberto:${process.env.PASSWORD}@cluster0.bgu8x.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 
 const indexRouter = require('./routes/index');
 const watsonRouter = require('./routes/watson');
