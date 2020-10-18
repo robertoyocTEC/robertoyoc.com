@@ -98,7 +98,7 @@ function Main() {
             </Paper>
           </Grid>
         </Grid>
-        <Chatbox user={user.name} />
+        <Chatbox user={user.nickname} />
       </div>
     );
   }

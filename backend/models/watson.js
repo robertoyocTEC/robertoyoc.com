@@ -4,6 +4,7 @@
     _id: mongoose.Schema.Types.ObjectId,
     user: String,
     message: String,
+    channel: String,
     intent: String
  });
 

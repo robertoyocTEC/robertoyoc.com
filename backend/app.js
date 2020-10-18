@@ -10,6 +10,8 @@ const uri = `mongodb+srv://roberto:${process.env.PASSWORD}@cluster0.bgu8x.mongod
 
 const indexRouter = require('./routes/index');
 const watsonRouter = require('./routes/watson');
+const whatsappRouter = require('./routes/whatsapp');
+const messageRouter = require('./routes/message');
 
 mongoose.connect(uri , {
 	useNewUrlParser: true, useUnifiedTopology: true
@@ -25,6 +27,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/watson', watsonRouter);
+app.use('/whatsapp', whatsappRouter);
+app.use('/message', messageRouter);
 app.get('*', (req, res) => {
     res.send(404).send('Route not found');
 });

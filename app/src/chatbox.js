@@ -46,8 +46,7 @@ class Chatbox extends Component {
             message: this.state.message,
             from: 'user'
           }
-        ],
-        message: ''
+        ]
       });
       console.log('fetching...');
       axios.post('http://127.0.0.1:5002/getMessage', {
@@ -71,6 +70,9 @@ class Chatbox extends Component {
         })
         .then(res => {
           console.log(res);
+          this.setState({
+            message: ''
+          });
         })
         .catch(err => {
           console.log(err);
@@ -100,7 +102,7 @@ class Chatbox extends Component {
           <div className="send">
           <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
                 <Grid xs={10}>
-                    <TextField className="txt-msg" id="outlined-basic" label="Message" variant="outlined" value={this.state.value} placeholder="Type your message here" onChange={this.addMessage}/>
+                    <TextField className="txt-msg" id="outlined-basic" label="Message" variant="outlined" value={this.state.message} placeholder="Type your message here" onChange={this.addMessage}/>
                 </Grid>
                 <Grid xs={2}>
                     <Fab color="primary" aria-label="send" onClick={this.postMessage}>
