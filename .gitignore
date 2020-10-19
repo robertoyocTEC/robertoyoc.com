@@ -23,8 +23,6 @@
 
 /api_watson/.env
 /app/node_modules
-/backend/node_modules
-/backend/.env
 **/.env
 **/node_modules
 

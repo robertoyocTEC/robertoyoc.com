@@ -39,6 +39,7 @@ class Chatbox extends Component {
     if(this.state.message === '') {
       alert('Message should not be empty');
     } else {
+      const messageToSend = this.state.message;
       this.setState({
         messages: [
           ...this.state.messages,
@@ -46,40 +47,27 @@ class Chatbox extends Component {
             message: this.state.message,
             from: 'user'
           }
-        ]
+        ],
+        message: ''
       });
+      console.log(messageToSend);
       console.log('fetching...');
-      axios.post('http://127.0.0.1:5002/getMessage', {
-        message: this.state.message
+      axios.post('http://c230a077d21b.ngrok.io/watson', {
+        message: messageToSend,
+        user: this.state.user
       })
       .then (res => {
-        console.log(res.data.text);
+        console.log(res);
+        console.log(res.data.message);
         this.setState({
           messages: [
             ...this.state.messages, 
             {
-              message: res.data.text,
+              message: res.data.message,
               from: 'chatbox'
             }
           ]
         });
-        axios.post('http://localhost:3000/watson', {
-          "user": this.state.user,
-          "message": this.state.message,
-          "intent": res.data.intent
-        })
-        .then(res => {
-          console.log(res);
-          this.setState({
-            message: ''
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-      })
-      .catch(err => {
-        console.log(err);
       });
     }
   }

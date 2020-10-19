@@ -1,9 +1,11 @@
 # API
+# Sistem Libs
 import os
 import json
 import logging
 import requests
 
+# API Libs
 import flask
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -11,19 +13,35 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_api import status
 
+# Watson Libs
 from jsonschema import validate, ValidationError
 from ibm_watson import AssistantV2, ApiException
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from flask import jsonify
 
+# MongoDB Libs
+import pymongo
+from pprint import pprint
+#import dnspython
+
+# Twilio Libs
+from twilio.rest import Client as Twilio
+
+# Load .env file
 load_dotenv()
 
+# MongoDB Config
+uri = "mongodb+srv://roberto:" + os.getenv("password") + "@cluster0.bgu8x.mongodb.net/robertoyoc?retryWrites=true&w=majority"
+client = pymongo.MongoClient(uri)
+db = client.robertoyoc
+
+# API Config
 app = Flask(__name__)
 api = Api(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Watson Config
 assistant_api_key = os.getenv("assistant_api_key")
-
 request_data = {
             "assistant_api_key": os.getenv("assistant_api_key"),
             "assistant_url": os.getenv("assistant_url"),
@@ -32,6 +50,11 @@ request_data = {
             "assistant_id_whatsapp": os.getenv("assistant_id_whatsapp")
         } 
 
+# Twilio Config
+
+client_twilio = Twilio(os.getenv("account_sid"), os.getenv("auth_token"))
+
+# Create Session for watson assistant for WEB Channel
 def watson_create_session():
     iam_apikey = request_data.get("assistant_api_key")
     assistant_url = request_data.get("assistant_url")
@@ -50,6 +73,7 @@ def watson_create_session():
 
     return watson_session_id
 
+# Create a Session for Watson assistant WhatsApp Channel
 def watson_create_session_whatsapp():
     iam_apikey = request_data.get("assistant_api_key")
     assistant_url = request_data.get("assistant_url")
@@ -68,7 +92,7 @@ def watson_create_session_whatsapp():
 
     return watson_session_id
 
-
+#Give a response for WEB Channel
 def watson_response(session_id, message):
     iam_apikey = request_data.get("assistant_api_key")
     assistant_url = request_data.get("assistant_url")
@@ -127,11 +151,18 @@ def watson_response(session_id, message):
         "session_id": watson_session_id
     }
 
-    return {
-        'text': response.get('response').get('output').get('generic')[0].get('text'),
-        'intent': response.get('response').get('output').get('intents')[0].get('intent')
-    }
+    if(len(response.get('response').get('output').get('intents')) > 0):
+        return {
+            'text': response.get('response').get('output').get('generic')[0].get('text'),
+            'intent': response.get('response').get('output').get('intents')[0].get('intent')
+        }
+    else:
+        return {
+            'text': 'Lo siento, no entendi tu mensaje, por favor intenta de nuevo',
+            'intent': 'none'
+        }
 
+# Give a response for WhatsApp Channel
 def watson_response_whatsapp(session_id, message):
     iam_apikey = request_data.get("assistant_api_key")
     assistant_url = request_data.get("assistant_url")
@@ -190,11 +221,18 @@ def watson_response_whatsapp(session_id, message):
         "session_id": watson_session_id
     }
 
-    return {
-        'text': response.get('response').get('output').get('generic')[0].get('text'),
-        'intent': response.get('response').get('output').get('intents')[0].get('intent')
-    }
+    if(len(response.get('response').get('output').get('intents')) > 0):
+        return {
+            'text': response.get('response').get('output').get('generic')[0].get('text'),
+            'intent': response.get('response').get('output').get('intents')[0].get('intent')
+        }
+    else:
+        return {
+            'text': 'Lo siento, no entendi tu mensaje, por favor intenta de nuevo',
+            'intent': 'none'
+        }
 
+# Define Watson Instance
 def watson_instance(iam_apikey: str, url: str, version: str = "2019-02-28") -> AssistantV2:
     try:
         authenticator = IAMAuthenticator(iam_apikey)
@@ -209,20 +247,78 @@ def watson_instance(iam_apikey: str, url: str, version: str = "2019-02-28") -> A
 
     return assistant
 
+# Fetch Watson messages from MongoDB
+def getWatson():
+    watson_collection = db.watsons.find({})
+    res = []
+    for item in watson_collection:
+        res.append({
+            "intent": item.get("intent"),
+            "message": item.get("message"),
+            "user": item.get("user"),
+            "channel": item.get("channel")
+        })
+    return res
 
-class GET_MESSAGE(Resource):
+# Create a new MongoDB Message
+def postWatson(message, user):
+    try: 
+        result = watson_response(watson_create_session(), message) #return text and intent as json
+        response = db.watsons.insert_one({
+            "intent": result.get("intent"),
+            "message": result.get("text"),
+            "user": user,
+            "channel": "web"
+        })
+        return {
+            "intent": result.get("intent"),
+            "message": result.get("text"),
+            "user": user,
+            "channel": "web"
+        }
+    except:
+        return "Error"
+
+# Send a message to user by whatsApp
+def twilioWhatsApp(req):
+    result = watson_response_whatsapp(watson_create_session_whatsapp(), request.form.get('Body')) #return text and intent as json
+    print(result)
+    db.whatsapps.insert_one({
+        "intent": result.get("intent"),
+        "message": request.form.get('Body'),
+        "response": result.get("text"),
+        "user": request.form.get('From'),
+        "channel": "whatsapp"
+    })
+    message = client_twilio.messages.create( 
+        from_='whatsapp:+' + os.getenv("from"),  
+        body=result.get("text"),
+        to='whatsapp:+' + os.getenv("to")
+        #to=request.form.get('From')
+    )
+    print(message.sid)
+    return message.sid
+
+# Class for watson route
+class MONGO(Resource):
+    def get(self):
+        response = getWatson()
+        return response
     def post(self):
-        response = watson_response(watson_create_session(), request.json["message"])
+        response = postWatson(request.json["message"], request.json["user"])
         return response
 
-class GET_MESSAGE_WHATSAPP(Resource):
+# Class for whatsApp route
+class TWILIO(Resource):
     def post(self):
-        response = watson_response_whatsapp(watson_create_session(), request.json["message"])
+        response = twilioWhatsApp(request)
         return response
 
+# routes
+api.add_resource(MONGO, '/watson')  # Route_1
+api.add_resource(TWILIO, '/whatsApp')  # Route_2
 
-api.add_resource(GET_MESSAGE, '/getMessage')  # Route_1
-api.add_resource(GET_MESSAGE_WHATSAPP, '/whatsApp')  # Route_2
+
 
 if __name__ == '__main__':
     app.run(port='5002')
