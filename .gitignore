@@ -24,7 +24,7 @@
 /api_watson/.env
 /app/node_modules
 **/.env
-**/node_modules
+**/node_modules/
 
 npm-debug.log*
 yarn-debug.log*
