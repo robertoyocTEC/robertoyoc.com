@@ -97,3 +97,15 @@
 .MuiFormControl-root {
   padding: 10px !important;
 }
+
+.margin-btn{
+  margin: 10px 0;
+}
+
+.centering {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0;
+}

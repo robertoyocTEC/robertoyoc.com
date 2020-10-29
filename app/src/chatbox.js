@@ -4,6 +4,9 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import CancelIcon from '@material-ui/icons/Cancel';
 import './App.css';
 
 const axios = require('axios');
@@ -52,7 +55,7 @@ class Chatbox extends Component {
       });
       console.log(messageToSend);
       console.log('fetching...');
-      axios.post('http://c230a077d21b.ngrok.io/watson', {
+      axios.post('http://7276e31dd0ff.ngrok.io/watson', {
         message: messageToSend,
         user: this.state.user
       })
@@ -75,6 +78,14 @@ class Chatbox extends Component {
   render() {
     return (
       <div className="chat">
+        <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<CancelIcon />}
+            onClick={this.props.close}
+          >
+            Close
+        </Button>
         <div className="main">
           <div className="messages">
             {this.state.messages.map((message, index) => {
@@ -92,8 +103,8 @@ class Chatbox extends Component {
                 <Grid xs={10}>
                     <TextField className="txt-msg" id="outlined-basic" label="Message" variant="outlined" value={this.state.message} placeholder="Type your message here" onChange={this.addMessage}/>
                 </Grid>
-                <Grid xs={2}>
-                    <Fab color="primary" aria-label="send" onClick={this.postMessage}>
+                <Grid xs={2} className="centering">
+                    <Fab color="primary" size="small" aria-label="send" onClick={this.postMessage}>
                         <SendIcon />
                     </Fab>
                 </Grid>

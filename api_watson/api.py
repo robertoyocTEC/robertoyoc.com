@@ -22,6 +22,7 @@ from flask import jsonify
 # MongoDB Libs
 import pymongo
 from pprint import pprint
+import uuid
 #import dnspython
 
 # Twilio Libs
@@ -299,8 +300,64 @@ def twilioWhatsApp(req):
     print(message.sid)
     return message.sid
 
+def create_course(name, description, image, bg):
+    response = db.courses.insert_one({
+        "course_id": str(uuid.uuid4()),
+        "name": name,
+        "description": description,
+        "image": image,
+        "bg": bg
+    })
+    return {
+        "course_id": str(uuid.uuid4()),
+        "name": name,
+        "description": description,
+        "image": image,
+        "bg": bg
+    }
+
+def get_courses():
+    courses = db.courses.find({})
+    res = []
+    for item in courses:
+        res.append({
+            "course_id": item.get("course_id"),
+            "name": item.get("name"),
+            "description": item.get("description"),
+            "image": item.get("image"),
+            "bg": item.get("bg")
+        })
+    return res
+
+def enroll_course(user, course):
+    try:
+        response: db.enrolls.insert_one({
+            "user": user,
+            "course": course
+        })
+        return {
+            "user": user,
+            "course": course 
+        }
+    except:
+        return "Error"
+
+def get_enrolls():
+    try:
+        res = []
+        response = db.enrolls.find({})
+        for item in response:
+            res.append({
+                "user": item.get("user"),
+                "course": item.get("course")
+            })
+        return res
+    except:
+        return "Error"
+        
+
 # Class for watson route
-class MONGO(Resource):
+class WATSON_DB(Resource):
     def get(self):
         response = getWatson()
         return response
@@ -314,9 +371,27 @@ class TWILIO(Resource):
         response = twilioWhatsApp(request)
         return response
 
+class COURSES(Resource):
+    def post(self):
+        response = create_course(request.json["name"], request.json["description"], request.json["image"], request.json["bg"])
+        return response
+    def get(self):
+        response = get_courses()
+        return response
+
+class ENROLLS(Resource):
+    def post(self):
+        response = enroll_course(request.json["user"], request.json["course"])
+        return response
+    def get(self):
+        response = get_enrolls()
+        return response
+    
 # routes
-api.add_resource(MONGO, '/watson')  # Route_1
+api.add_resource(WATSON_DB, '/watson')  # Route_1
 api.add_resource(TWILIO, '/whatsApp')  # Route_2
+api.add_resource(COURSES, '/courses')  # Route_3
+api.add_resource(ENROLLS, '/enrolls')  # Route_4
 
 
 
