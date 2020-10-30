@@ -89,6 +89,11 @@ a {
     margin: 10px 0;
 }
 
+.btn-white-outline {
+    color: white !important;
+    border: 1px solid white !important;
+}
+
 .full-view {
     background-color: rgb(0,0,0, 0.5) !important;
     height: 100vh;

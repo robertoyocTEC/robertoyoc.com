@@ -1,13 +1,11 @@
-import React, {Component, useState, useEffect} from 'react';
-import parse from 'html-react-parser';
+import React, {Component} from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
-import './App.css';
+import '../App.css';
 
 const axios = require('axios');
 
@@ -25,7 +23,7 @@ class Chatbox extends Component {
   }
 
   componentDidMount() {
-    if(this.props.user != '' || this.props.user != undefined){
+    if(this.props.user !== '' || this.props.user !== undefined){
       this.setState({
         user: this.props.user
       });
@@ -55,7 +53,7 @@ class Chatbox extends Component {
       });
       console.log(messageToSend);
       console.log('fetching...');
-      axios.post('http://7276e31dd0ff.ngrok.io/watson', {
+      axios.post('http://127.0.0.1:5002//watson', {
         message: messageToSend,
         user: this.state.user
       })
