@@ -14,8 +14,10 @@ import Menu from './components/menu';
 import CourseDetail from './components/course-detail';
 import Profile from './components/profile';
 
+// App Component, principal Component
 export default function App() {
   return(
+    //Router for go to another router
     <Router>
       <Menu />
       <Route path="/" exact={true} component={Login} />
