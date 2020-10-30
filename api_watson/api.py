@@ -329,12 +329,27 @@ def get_courses():
         })
     return res
 
+def get_course(id):
+    try:
+        response = db.courses.find({ "course_id": id })
+        return {
+            "name": response[0].get("name"),
+            "description": response[0].get("description"),
+            "image": response[0].get("image"),
+            "bg": response[0].get("bg")
+        }
+    except:
+        return "Error"
+
 def enroll_course(user, course):
     try:
-        response: db.enrolls.insert_one({
+        print(user)
+        print(course)
+        response = db.enrolls.insert_one({
             "user": user,
             "course": course
         })
+        print(response)
         return {
             "user": user,
             "course": course 
@@ -342,19 +357,22 @@ def enroll_course(user, course):
     except:
         return "Error"
 
-def get_enrolls():
+def get_enrolls(id):
     try:
         res = []
         response = db.enrolls.find({})
         for item in response:
-            res.append({
-                "user": item.get("user"),
-                "course": item.get("course")
-            })
+            courses = db.courses.find({ "course_id": item.get("course") })
+            for course in courses:
+                res.append({
+                    "name": course.get("name"),
+                    "description": course.get("description"),
+                    "image": course.get("image"),
+                    "bg": course.get("bg")
+                })
         return res
     except:
         return "Error"
-        
 
 # Class for watson route
 class WATSON_DB(Resource):
@@ -379,18 +397,24 @@ class COURSES(Resource):
         response = get_courses()
         return response
 
+class COURSE(Resource):
+    def get(self):
+        response = get_course(request.args.get('id'))
+        return response
+
 class ENROLLS(Resource):
     def post(self):
         response = enroll_course(request.json["user"], request.json["course"])
         return response
     def get(self):
-        response = get_enrolls()
+        response = get_enrolls(request.args.get('id'))
         return response
     
 # routes
 api.add_resource(WATSON_DB, '/watson')  # Route_1
 api.add_resource(TWILIO, '/whatsApp')  # Route_2
 api.add_resource(COURSES, '/courses')  # Route_3
+api.add_resource(COURSE, '/course')  # Route_3
 api.add_resource(ENROLLS, '/enrolls')  # Route_4
 
 
