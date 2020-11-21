@@ -26,7 +26,7 @@ export default function Menu() {
               </Typography>
             {isAuthenticated && (
               <div style={{display: 'flex', flexDirection: 'row'}}>
-                <Link to="/main" style={{margin: '0', color: 'black'}}>
+                <Link to="/" style={{margin: '0', color: 'black'}}>
                   <Button color="inherit">Main</Button>
                 </Link>
                 <Link to="/profile" style={{margin: '0'}}>

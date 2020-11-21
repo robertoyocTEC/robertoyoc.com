@@ -11,6 +11,13 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SmsIcon from '@material-ui/icons/Sms';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import EmailIcon from '@material-ui/icons/Email';
+import LinkedInIcon from '@material-ui/icons/LinkedIn';
+import swal from 'sweetalert';
 
 //Component fro display charts
 import Chart from "react-google-charts";
@@ -62,12 +69,30 @@ export default function Main() {
     //Fetch data
     useEffect(() => {
       console.log(user);
-      axios.get('http://127.0.0.1:5002/courses')
-      .then(res => {
-        console.log(res.data);
-        setCourse(res.data);
-      })
-      .catch(err => console.log(err));
+      if(user){
+        console.log('user exists');
+        axios.get('http://127.0.0.1:5002/courses')
+        .then(res => {
+          console.log('all courses: ', res.data);
+          axios.get(`http://127.0.0.1:5002/enrolls?id=a01274912`)
+          .then(courses => {
+            console.log('enrolled courses: ', courses.data);
+            const toRender = res.data.filter(course => !courses.data.some(item => item.course_id === course.course_id));
+            console.log('courses not enrolled: ', toRender);
+            setCourse(toRender);
+          }).catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
+      } else {
+        axios.get('http://127.0.0.1:5002/courses')
+        .then(res => {
+          setCourse(res.data);
+        }).catch(err => console.log(err));
+      }
+      
+
+      
+
     }, []);
   
     //Enroll course for users
@@ -93,75 +118,129 @@ export default function Main() {
     const viewChat = () => {
       setDisplayChat(!displayChat);
     }
+
+    const decideEnroll = (name, id) => {
+      swal({
+        title: "Are you sure?",
+        text: `You will going to enroll to the ${name} course`,
+        icon: "info",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          swal(`Welcome to the ${name} course`, {
+            icon: "success",
+          })
+          .then(() => {
+            enroll(id)
+          });
+        } else {
+          swal("You are not enrolled yet");
+        }
+      });
+    }
+
+    const goLogin = () => {
+      history.push('/login');
+    }
   
-    if(!isAuthenticated){
-      history.push("/");
-    } else {
-      return(
-        <div style={{marginTop: '10px'}}>
-          <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
-            <Grid item xs={12} lg={7}>
-              <Paper style={{padding: '20px'}}>
-                <Grid container direction="column" justify="center" alignItems="center">
-                  <Avatar className="large-avatar" alt="Roberto Yoc" src="https://www.flaticon.com/svg/static/icons/svg/2922/2922506.svg" />
+    return(
+      <div style={{marginTop: '10px'}}>
+        <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
+          <Grid item xs={12} lg={7}>
+            <Grid container direction="row" justify="center" alignItems="flex-start" spacing={2}>
+              <Grid item xs={12}>
+                <Paper className="card-media">
+                  <Avatar className="large-avatar" alt="Roberto Yoc" src="https://media-exp1.licdn.com/dms/image/C4E03AQEOospdVkmrGw/profile-displayphoto-shrink_200_200/0?e=1611187200&v=beta&t=WKqBCWiVe-xwCfk6e-c7-8un7ZRgwYVAlBtbfD51CU0" />
                   <h3 style={{color: 'dimgrey'}}>Roberto Carlos Yoc Ramirez</h3>
-                  <p style={{textAlign: 'justify'}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin maximus lorem ut lorem efficitur, 
-                    sit amet eleifend nisi tincidunt. Proin cursus pretium augue. Duis at ultrices leo. In consectetur, 
-                    justo non pulvinar iaculis, dolor libero ultrices augue, faucibus tempor nibh tortor vitae justo. 
-                    Curabitur efficitur facilisis semper. Vestibulum egestas dictum eros eu facilisis. Fusce ipsum nisi, 
-                    fringilla quis mauris in, vestibulum consectetur nisi. Ut a neque lorem. Nam fermentum eleifend nulla, 
-                    quis semper enim pharetra vel. Vivamus fermentum fringilla efficitur.</p>
-                </Grid>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} lg={7}>
-              <Paper className="paper-main">
-                <Grid container direction="column" justify="center" alignItems="center">
-                <Chart
-                  chartType="PieChart"
-                  width="100%"
-                  height="400px"
-                  data={data}
-                  options={options}
-                />
-                  <Button className="margin-btn" variant="outlined" color="primary" onClick={viewCourses}>
-                    Ver Cursos
-                  </Button>
-                  <IconButton 
-                    aria-label="delete" 
-                    style={{display: !displayChat ? 'block': 'none', position: 'fixed', bottom: 0, right: 0, zIndex: 999, color: 'white'}}
-                    onClick={viewChat}
-                  >
-                    <SmsIcon fontSize="large" />
-                  </IconButton>
-                </Grid>
-              </Paper>
+                  <p style={{textAlign: 'justify'}}>Perfil tecnológico multidisciplinario. Ha lanzado y administrado 
+                  dos empresas: Quesadillas el Güero y Talentics.
+                  Estudiante del Tecnológico de Monterrey y parte del programa “Líderes del Mañana”, 
+                  ha encontrado su pasión en la intervención social.
+                  Con una trayectoria académica sobresaliente y reconocimientos de índole estatal y nacional, 
+                  ha buscado transmitir su ímpetu en el estudio a jóvenes estudiantes, razón por la cual comenzó a 
+                  desarrollar su primer empresa: Talentics, donde la robótica, electrónica y programación son 
+                  los ejes centrales. <br />
+                  Talentics fue seleccionada, a través del programa INC Accelerator Seed, como una de las 
+                  mejores 50 startups en Latinoamérica, teniendo presencia en INC Mty 2018. Talentics cuenta con un 
+                  programa educativo que desarrolla complementos tecno-educativos para brindar a los niños de educación 
+                  básica un complemento a su educación. Este programa está enfocado prioritariamente a comunidades con 
+                  rezago tecnológico, con el objetivo de disminuir la brecha digital. <br />
+                  Diseñó e implementó el programa “Ateny”, plataforma web que conecta casos de éxito estudiantiles con 
+                  alumnos de educación básica, dándoles acceso a un mentor que desarrolla un papel inspirador en su 
+                  trayectoria estudiantil.
+                  En cuanto al ámbito profesional, es desarrollador web en Energyza, empresa mexicana dedicada a la 
+                  eficiencia energética. Coordinó el desarrollo de un sistema de monitoreo energético y actualmente 
+                  coordina el desarrollo de la segunda versión que contempla clientes como Cinépolis, Starbucks y Elektra. </p>
+                  <p>Contacto: </p>
+                  <List component="nav" aria-label="main mailbox folders">
+                    <a href="mailto:roberto.yoc@talentics.mx" target="_blank">
+                      <ListItem button>
+                        <ListItemIcon>
+                          <EmailIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="roberto.yoc@talentics.mx" className="font-roboto"/>
+                      </ListItem>
+                    </a>
+                    <a href="https://www.linkedin.com/in/robertoyoc/" target="_blank">
+                      <ListItem button>
+                        <ListItemIcon>
+                          <LinkedInIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="@robertoyoc" className="font-roboto" />
+                      </ListItem>
+                    </a>
+                  </List>
+                </Paper>
+              </Grid>
+              <Grid item xs={12}>
+                <Paper className="card-media">
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="400px"
+                    data={data}
+                    options={options}
+                  />
+                    <Button className="margin-btn" variant="outlined" color="primary" onClick={viewCourses}>
+                      Ver Cursos
+                    </Button>
+                    <IconButton 
+                      aria-label="delete" 
+                      style={{display: !displayChat ? 'block': 'none', position: 'fixed', bottom: 0, right: 0, zIndex: 999, color: 'white'}}
+                      onClick={viewChat}
+                    >
+                      <SmsIcon fontSize="large" />
+                    </IconButton>
+                </Paper>
+              </Grid>
             </Grid>
           </Grid>
-          <div style={{display: displayChat ? 'block': 'none'}}>
-            <Chatbox user={user.nickname} close={viewChat} />
-          </div>
-          <div className="full-view" style={{display: displayCards? 'block': 'none'}}>
-          <ReactCardCarousel style={{display: displayCards===true? 'block': 'none' }} autoplay={ true } autoplay_speed={ 4000 }>
-            {courses.map((course, index) => {
-              return (
-                <div className="card-carousel" style={{background: course.bg}}>
-                  <h3>Start your {course.name} Course Now</h3>
-                  <img src={course.image} width="100%" />
-                  <Button className="btn-white-outline" variant="outlined" color="primary" style={{color: 'white', border: '1px solid white'}} onClick={() => enroll(course.course_id)}>Enroll Course</Button>
-                </div>
-              );
-            })}
-          </ReactCardCarousel>
-          </div>
-          <IconButton 
-            aria-label="delete" 
-            style={{display: displayCards ? 'block': 'none', position: 'fixed', bottom: 0, zIndex: 999, color: 'red', width: '100vw'}}
-            onClick={viewCourses}
-          >
-            <CancelIcon fontSize="large" />
-          </IconButton>
+        </Grid>
+        <div style={{display: displayChat ? 'block': 'none'}}>
+          <Chatbox user={user ? user.nickname : 'guest'} close={viewChat} />
         </div>
-      );
-    }
+        <div className="full-view" style={{display: displayCards? 'block': 'none'}}>
+        <ReactCardCarousel style={{display: displayCards===true? 'block': 'none' }} autoplay={ true } autoplay_speed={ 4000 }>
+          {courses.map((course, index) => {
+            return (
+              <div className="card-carousel" style={{background: course.bg}} key={index}>
+                <h3>Start your {course.name} Course Now</h3>
+                <img src={course.image} width="100%" />
+                <Button className="btn-white-outline" variant="outlined" color="primary" style={{color: 'white', border: '1px solid white'}} onClick={() => user ? decideEnroll(course.name, course.course_id) : goLogin()}>Enroll Course</Button>
+              </div>
+            );
+          })}
+        </ReactCardCarousel>
+        </div>
+        <IconButton 
+          aria-label="delete" 
+          style={{display: displayCards ? 'block': 'none', position: 'fixed', bottom: 0, zIndex: 999, color: 'red', width: '100vw'}}
+          onClick={viewCourses}
+        >
+          <CancelIcon fontSize="large" />
+        </IconButton>
+      </div>
+    );
   }

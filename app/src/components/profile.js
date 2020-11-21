@@ -11,9 +11,15 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
 //Component for Login with Auth0
 import LoginButton from './login-button';
+
+import '../App.css';
 
 const axios = require('axios');
 
@@ -56,14 +62,31 @@ export default function Profile() {
               <h3>{user.name}</h3>
               <p style={{color: 'grey'}}>{status}</p>
               <span>Courses Enrolled: </span>
-              <List>
+              <List className="auto-width">
                 {courses.map((course, index) => {
                   return(
                       <ListItem key={index}>
                         <ListItemAvatar>
                           <Avatar alt={course.name} src={course.image} style={{backgroundColor: course.bg}} />
                         </ListItemAvatar>
-                        <ListItemText primary={course.name} />
+                        <ListItemText primary={course.name} style={{marginRight: '25px'}} />
+                          <ListItemSecondaryAction>
+                            <Box position="relative" display="inline-flex">
+                              <CircularProgress variant="static" value={50} color="primary" />
+                              <Box
+                                top={0}
+                                left={0}
+                                bottom={0}
+                                right={0}
+                                position="absolute"
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                              >
+                                <Typography variant="caption" component="div" color="textSecondary">{`50%`}</Typography>
+                              </Box>
+                            </Box>
+                          </ListItemSecondaryAction>
                       </ListItem>
                   );
                 })}

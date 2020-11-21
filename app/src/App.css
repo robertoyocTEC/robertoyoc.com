@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
 .chat {
   position: fixed;
   bottom: 0;
@@ -108,4 +110,24 @@
   align-items: flex-start;
   margin: 0;
   padding: 0;
+}
+
+.MuiListItemText-primary {
+  margin-right: '25px';
+}
+
+.card-media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auto-width {
+  width: auto !important;
+}
+
+.full-width {
+  width: 100% !important;
 }

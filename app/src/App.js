@@ -20,8 +20,8 @@ export default function App() {
     //Router for go to another router
     <Router>
       <Menu />
-      <Route path="/" exact={true} component={Login} />
-      <Route path="/main" component={Main} />
+      <Route path="/" exact={true} component={Main} />
+      <Route path="/login" component={Login} />
       <Route path="/course/:id" component={CourseDetail} />
       <Route path="/profile" component={Profile} />
     </Router>

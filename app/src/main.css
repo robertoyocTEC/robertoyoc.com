@@ -111,3 +111,7 @@ a {
     right: 50;
     z-index: 999;
 }
+
+.font-roboto {
+    font-family: 'Roboto', sans-serif !important;
+  }

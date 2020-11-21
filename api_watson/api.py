@@ -360,11 +360,14 @@ def enroll_course(user, course):
 def get_enrolls(id):
     try:
         res = []
-        response = db.enrolls.find({})
+        response = db.enrolls.find({
+            "user": id
+        })
         for item in response:
             courses = db.courses.find({ "course_id": item.get("course") })
             for course in courses:
                 res.append({
+                    "course_id": course.get("course_id"),
                     "name": course.get("name"),
                     "description": course.get("description"),
                     "image": course.get("image"),
