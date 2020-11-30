@@ -20,6 +20,7 @@ class Chatbox extends Component {
     }
     this.addMessage = this.addMessage.bind(this);
     this.postMessage = this.postMessage.bind(this);
+    this.sendAction = this.sendAction.bind(this);
   }
 
   componentDidMount() {
@@ -37,9 +38,12 @@ class Chatbox extends Component {
   }
 
   postMessage() {
+    console.log('called');
     if(this.state.message === '') {
+      console.log('empty')
       alert('Message should not be empty');
     } else {
+      console.log('posted');
       const messageToSend = this.state.message;
       this.setState({
         messages: [
@@ -72,6 +76,48 @@ class Chatbox extends Component {
       });
     }
   }
+  sendAction(key) {
+    console.log(key.keyCode)
+    console.log(key.key)
+    if(key.key == 'Enter') {
+      if(this.state.message === '') {
+        console.log('empty')
+        alert('Message should not be empty');
+      } else {
+        console.log('posted');
+        const messageToSend = this.state.message;
+        this.setState({
+          messages: [
+            ...this.state.messages,
+            {
+              message: this.state.message,
+              from: 'user'
+            }
+          ],
+          message: ''
+        });
+        console.log(messageToSend);
+        console.log('fetching...');
+        axios.post('http://127.0.0.1:5002//watson', {
+          message: messageToSend,
+          user: this.state.user
+        })
+        .then (res => {
+          console.log(res);
+          console.log(res.data.message);
+          this.setState({
+            messages: [
+              ...this.state.messages, 
+              {
+                message: res.data.message,
+                from: 'chatbox'
+              }
+            ]
+          });
+        });
+      }
+    }
+  }
 
   render() {
     return (
@@ -99,7 +145,7 @@ class Chatbox extends Component {
           <div className="send">
           <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
                 <Grid xs={10}>
-                    <TextField className="txt-msg" id="outlined-basic" label="Message" variant="outlined" value={this.state.message} placeholder="Type your message here" onChange={this.addMessage}/>
+                    <TextField className="txt-msg" id="outlined-basic" label="Message" variant="outlined" value={this.state.message} placeholder="Type your message here" onChange={this.addMessage} onKeyDown={this.sendAction} />
                 </Grid>
                 <Grid xs={2} className="centering">
                     <Fab color="primary" size="small" aria-label="send" onClick={this.postMessage}>
